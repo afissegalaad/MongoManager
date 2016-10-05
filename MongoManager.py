@@ -20,6 +20,7 @@ from itertools import count
 import socket
 import sys
 import json
+from datetime import datetime
 
 def is_open_port(port):
     """
@@ -43,7 +44,7 @@ def warning(msg):
 
     :param msg: The warning message.
     """
-    print "[WARNING] " + msg
+    print "[WARNING:" + str(datetime.now()) + "] " + msg
 
 def error(msg, code=1):
     """
@@ -56,7 +57,7 @@ def error(msg, code=1):
     :param msg: The error message.
     :param code: The error code.:
     """
-    print "[ERROR] " + msg
+    print "[FAILURE:" + str(datetime.now()) + "] " + msg
     sys.exit(code)
 
 def success(msg):
@@ -68,7 +69,7 @@ def success(msg):
 
     :param msg: The success message.
     """
-    print "[SUCCESS] " + msg
+    print "[SUCCESS:" + str(datetime.now()) + "] " + msg
 
 def call(cmd):
     """
@@ -198,7 +199,7 @@ class Mongod:
         if rc == 0:
             success("mongod process " + pid + " killed")
         else:
-            error("mongod process " + pid + " not killed")
+            warning("mongod process " + pid + " not killed")
         #call(["mongo", "localhost:" + str(self.port) + "/admin", "--eval", "'db.shutdownServer()'"])
 
     def clean(self):
@@ -209,7 +210,7 @@ class Mongod:
         if rc == 0:
             success("cleaned")
         else:
-            error("not cleaned")
+            warning("not cleaned")
 
 class Mongos:
     """
@@ -287,7 +288,7 @@ class Mongos:
         if rc == 0:
             success("mongos process " + pid + " killed")
         else:
-            error("mongos process " + pid + " not killed")
+            warning("mongos process " + pid + " not killed")
 
     def clean(self):
         """
@@ -297,7 +298,7 @@ class Mongos:
         if rc == 0:
             success("cleaned")
         else:
-            error("not cleaned")
+            warning("not cleaned")
 
 class MongoReplicaSet:
     """
@@ -451,9 +452,9 @@ class MongoCluster:
         """
         for ms in self.mongoss:
             ms.start()
-        success("mongos started")
+        success(str(len(self.mongoss)) + " mongos started")
         success("cluster initialized")
-        
+
     def stop(self):
         """
         Stop the cluster.
