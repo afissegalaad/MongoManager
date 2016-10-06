@@ -1,3 +1,6 @@
 *.pyc
 *~
 *.old
+pid
+log
+data

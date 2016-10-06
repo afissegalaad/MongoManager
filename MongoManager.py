@@ -4,12 +4,11 @@
     File name: MongoManager.py
     Author: Galaad
     Date created: 10/02/2016
-    Date last modified: 10/05/2016
+    Date last modified: 10/06/2016
 '''
 
 __author__ = "Galaad"
-__version__ = "1.0.0"
-__status__ = "alpha"
+__version__ = "0.1.0"
 
 from os import makedirs
 from os.path import isdir
@@ -102,7 +101,7 @@ class Mongod:
                  ibaselogpath="log/",
                  ipidpath="pid/"):
         """
-        Initialize the Mongod class. 
+        Constructor of the Mongod class. 
 
         It sets all the configuration but does not change anything on
         the machine. Does not create any directories.
@@ -140,7 +139,7 @@ class Mongod:
         self.pidpath = self.basepidpath + "/pid"
         self.__class__.count += 1
 
-    def init(self):
+    def initialize(self):
         """
         Initialize the environment to prepare the mongod process to be
         launched. 
@@ -240,7 +239,7 @@ class Mongos:
         self.pidpath = self.basepidpath + "/pid"
         self.__class__.count += 1
 
-    def init(self):
+    def initialize(self):
         """
         Initialize the environment of the mongos process that will be runned
         with start() method.
@@ -325,12 +324,12 @@ class MongoReplicaSet:
             self.mongods.append(md)
         self.__class__.count += 1
 
-    def init(self):
+    def initialize(self):
         """
         Initialize the environment of the replica set.
         """
         for md in self.mongods:
-            md.init()
+            md.initialize()
         success("replica set "+self.replname+" ready to be started")
 
     def start(self):
@@ -341,7 +340,7 @@ class MongoReplicaSet:
             md.start()
         success("replica set "+self.replname+" started")
 
-    def init_replica(self):
+    def initiate(self):
         """
         Initialize the replica set. It connects the nodes together. After
         the execution of this method, the replica set is ready to be
@@ -352,7 +351,7 @@ class MongoReplicaSet:
         output, err, rc = call(cmd)
         json_ret = json.loads(" ".join(output.split("\n")[2:]))
         if json_ret["ok"] == 1:
-            success("replica set initialized")
+            success("replica set initiated")
         else:
             error(json_ret["errmsg"])
         for secondary in self.mongods[1:]:
@@ -364,7 +363,6 @@ class MongoReplicaSet:
                 success("node added to replica set")
             else:
                 error(json_ret["errmsg"])
-        success("replica set "+self.replname+" initialized")
 
     def stop(self):
         """
@@ -417,43 +415,44 @@ class MongoCluster:
             ms = Mongos(configstring=configstring)
             self.mongoss.append(ms)
 
-    def init(self):
+    def initialize(self):
         """
         Initialize the environment of the cluster.
         """
-        self.config_replica_set.init()
+        self.config_replica_set.initialize()
         for ds in self.data_replica_sets:
-            ds.init()
+            ds.initialize()
         for ms in self.mongoss:
-            ms.init()
-        success("cluster is ready to be started")
+            ms.initialize()
+        success("cluster initialized")
 
-    def start_replicas(self):
+    def start(self):
         """
-        Start all the replica sets.
+        Start the cluster..
         """
         self.config_replica_set.start()
         for ds in self.data_replica_sets:
             ds.start()
-        success("replica sets started")
-
-    def init_replicas(self):
-        """
-        Initialize the replica sets.
-        """
-        self.config_replica_set.init_replica()
+        self.config_replica_set.initiate()
         for ds in self.data_replica_sets:
-            ds.init_replica()
-        success(str(self.scale_factor) + " data replica sets initialized")
-        
-    def init_cluster(self):
-        """
-        Initialize the cluster.
-        """
+            ds.initiate()
+        success(str(self.scale_factor) + " data replica sets initiated")
         for ms in self.mongoss:
             ms.start()
         success(str(len(self.mongoss)) + " mongos started")
-        success("cluster initialized")
+        success("cluster started")
+
+    def restart(self):
+        """
+        Restart the cluster.
+        """
+        self.config_replica_set.start()
+        for ds in self.data_replica_sets:
+            ds.start()
+        for ms in self.mongoss:
+            ms.start()
+        success(str(len(self.mongoss)) + " mongos restarted")
+        success("cluster restarted")
 
     def stop(self):
         """
