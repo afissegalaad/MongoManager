@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-    File name: example.py
+    File name: example1.py
     Author: Galaad Couillec
     Date created: 10/02/2016
     Date last modified: 10/06/2016
@@ -10,7 +10,6 @@
 from MongoManager import Mongod, MongoReplicaSet, MongoCluster
 import argparse
 import sys
-sys.path.append("..")
 
 parser = argparse.ArgumentParser(description='MongoDB cluster manager')
 parser.add_argument('--initialize', dest='initialize', action='store_true', default=False, help='Initialize the environment of the cluster')

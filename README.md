@@ -9,9 +9,7 @@ MongoManager is a Python library launching, stopping, managing MongoDB cluster i
 ## Examples
 
 ```python
-cluster = MongoCluster()
-cluster.init_cluster_env()
-cluster.start_cluster()
+cluster = MongoCluster().initialize().start()
 ```
 
 This example will start a cluster with default configuration (1 config replica set, 2 data replica sets, with a replica factor of 3).

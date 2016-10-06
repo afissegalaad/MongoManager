@@ -425,6 +425,7 @@ class MongoCluster:
         for ms in self.mongoss:
             ms.initialize()
         success("cluster initialized")
+        return self
 
     def start(self):
         """
@@ -441,6 +442,7 @@ class MongoCluster:
             ms.start()
         success(str(len(self.mongoss)) + " mongos started")
         success("cluster started")
+        return self
 
     def restart(self):
         """
@@ -453,6 +455,7 @@ class MongoCluster:
             ms.start()
         success(str(len(self.mongoss)) + " mongos restarted")
         success("cluster restarted")
+        return self
 
     def stop(self):
         """
@@ -464,6 +467,7 @@ class MongoCluster:
         for ms in self.mongoss:
             ms.stop()
         success("cluster stopped")
+        return self
         
     def clean(self):
         """
@@ -475,4 +479,5 @@ class MongoCluster:
         for ms in self.mongoss:
             ms.clean()
         success("cluster cleaned")
+        return self
     
