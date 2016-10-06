@@ -57,7 +57,7 @@ def error(msg, code=1):
     :param code: The error code.:
     """
     print "[FAILURE:" + str(datetime.now()) + "] " + msg
-    sys.exit(code)
+    raise Exception(str(code) + ":" + msg)
 
 def success(msg):
     """
