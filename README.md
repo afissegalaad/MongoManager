@@ -1,5 +1,10 @@
 # MongoManager
 
+[![Build Status](https://travis-ci.org/simkimsia/UtilityBehaviors.png)](https://travis-ci.org/simkimsia/UtilityBehaviors)
+[![Coverage Status](https://coveralls.io/repos/simkimsia/UtilityBehaviors/badge.png?branch=master)](https://coveralls.io/r/simkimsia/UtilityBehaviors?branch=master)
+[![Total Downloads](https://poser.pugx.org/simkimsia/utility_behaviors/d/total.png)](https://packagist.org/packages/simkimsia/utility_behaviors)
+[![Latest Stable Version](https://poser.pugx.org/simkimsia/utility_behaviors/v/stable.png)](https://packagist.org/packages/simkimsia/utility_behaviors)
+
 MongoManager is a Python library launching, stopping, managing MongoDB cluster in a few lines of code.
 
 * **Easy:** Just one class to start and manage a whole MongoDB cluster.
