@@ -1,6 +1,4 @@
-# MongoManager
-
-[![Build Status](https://travis-ci.org/yoanncouillec/MongoManager.png)](https://travis-ci.org/yoanncouillec/MongoManager)
+# MongoManager [![Build Status](https://travis-ci.org/yoanncouillec/MongoManager.png)](https://travis-ci.org/yoanncouillec/MongoManager)
 
 MongoManager is a Python library launching, stopping, managing MongoDB cluster in a few lines of code.
 
