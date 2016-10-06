@@ -19,3 +19,7 @@ This example will start a cluster with default configuration (1 config replica s
 ## Installation
 
 The library is a Python module and can be imported directly in your code.
+
+## License
+
+MongoManager is made under the terms of the MIT license.
