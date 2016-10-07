@@ -4,7 +4,7 @@ import sys
 from MongoManager import MongoCluster
 
 try:
-    cluster = MongoCluster().initialize().start().stop().clean()
+    cluster = MongoCluster().initialize()
     sys.exit(0)
 except:
     sys.exit(1)
