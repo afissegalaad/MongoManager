@@ -3,6 +3,6 @@
 import sys
 from MongoManager import MongoCluster
 
-cluster = MongoCluster().initialize()
+cluster = MongoCluster().clean()
 sys.exit(0)
 

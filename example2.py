@@ -9,4 +9,5 @@
 
 from MongoManager import MongoCluster
 
-cluster = MongoCluster().initialize().start()
+#cluster = MongoCluster().initialize().start()
+cluster = MongoCluster().stop().clean()

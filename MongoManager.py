@@ -20,6 +20,8 @@ import socket
 import sys
 import json
 from datetime import datetime
+import paramiko 
+import subprocess
 
 def is_open_port(port):
     """
@@ -70,7 +72,7 @@ def success(msg):
     """
     print "[SUCCESS:" + str(datetime.now()) + "] " + msg
 
-def call(cmd):
+def call_localhost(cmd):
     """
     Wrapper for Popen. Call a given command.
     
@@ -79,10 +81,29 @@ def call(cmd):
 
     :param cmd: The command to launch.
     """
+    #print " ".join(cmd)
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     output, err = p.communicate()
     rc = p.returncode
     return output,err,rc
+
+def call_ssh(hostname, username, cmd):
+    #cmd2 = ["ssh", username + "@" + hostname, "'nohup " + cmd + "> /dev/null 2>&1 &'"]
+    cmd2 = ["ssh", username + "@" + hostname, cmd]
+    #print " ".join(cmd2)
+    p = subprocess.Popen(cmd2,
+                         stdin=PIPE,
+                         stdout=PIPE,
+                         stderr=PIPE)
+    output, err = p.communicate()
+    rc = p.returncode
+    return output,err,rc
+
+def call(hostname, username, cmd):
+    if hostname == socket.gethostname():
+        return call_localhost(cmd)
+    else:
+        return call_ssh(hostname, username, " ".join(cmd))
 
 class Mongod:
     """
@@ -94,6 +115,7 @@ class Mongod:
     count = 0
     def __init__(self,
                  ihostname="yoann",
+                 iusername="couillec",
                  iport=27000, 
                  itype="data",
                  ireplname="dataReplSet", 
@@ -119,6 +141,7 @@ class Mongod:
         the mongod process launched.
         """
         self.hostname = ihostname
+        self.username = iusername
         self.port = iport + self.__class__.count
         self.type = ""
         self.dbpath = ""
@@ -148,21 +171,9 @@ class Mongod:
         """
         if is_open_port(self.port):
             error ("Port "+str(self.port)+" is already used")
-        if not isdir(self.dbpath):
-            call(["mkdir", "-p", self.dbpath])
-        else:
-            msg = self.dbpath + " already exists"
-            warning(msg)
-        if not isdir(self.baselogpath):
-            call(["mkdir", "-p", self.baselogpath])
-        else:
-            msg = self.baselogpath + " already exists"
-            warning(msg)
-        if not isdir(self.basepidpath):
-            call(["mkdir", "-p", self.basepidpath])
-        else:
-            msg = self.basepidpath + " already exists"
-            warning(msg)
+        call(self.hostname,self.username,["mkdir", "-p", self.dbpath])
+        call(self.hostname,self.username,["mkdir", "-p", self.baselogpath])
+        call(self.hostname,self.username,["mkdir", "-p", self.basepidpath])
         success("mongod is ready to be launched")
 
     def start(self):
@@ -178,7 +189,7 @@ class Mongod:
                "--dbpath", self.dbpath, 
                "--logpath", self.logpath, 
                "--fork"]
-        output, err, rc = call(cmd)
+        output, err, rc = call(self.hostname, self.username, cmd)
         pid = int(output.split("\n")[1].split()[2])
         f = open (self.pidpath,"w")
         f.write(str(pid))
@@ -194,18 +205,17 @@ class Mongod:
         Kill the mongod process. Does not remove the data files.
         """
         pid = open(self.pidpath).read()
-        output, err, rc = call(["kill", pid])
+        output, err, rc = call(self.hostname, self.username,["kill", pid])
         if rc == 0:
             success("mongod process " + pid + " killed")
         else:
             warning("mongod process " + pid + " not killed")
-        #call(["mongo", "localhost:" + str(self.port) + "/admin", "--eval", "'db.shutdownServer()'"])
 
     def clean(self):
         """
         Clean all the directories attached to the mongod process.
         """
-        output, err, rc = call(["rm", "-r", self.dbpath, self.baselogpath, self.basepidpath])
+        output, err, rc = call(self.hostname, self.username,["rm", "-r", self.dbpath, self.baselogpath, self.basepidpath])
         if rc == 0:
             success("cleaned")
         else:
@@ -217,7 +227,9 @@ class Mongos:
     """
     count = 0
     def __init__(self,
-                 port=28000, 
+                 hostname="yoann",
+                 username="couillec",
+                 port=28000,
                  configstring="", 
                  ibaselogpath="log/router/",
                  ipidpath="pid/router/"):
@@ -231,6 +243,8 @@ class Mongos:
         :param ibaselogpath: The path to the log file.
         :param ipidpath: The path to the pid file.
         """
+        self.hostname = hostname
+        self.username = username
         self.port = port + self.__class__.count
         self.configstring = configstring
         self.baselogpath = ibaselogpath + str(self.__class__.count)
@@ -246,16 +260,8 @@ class Mongos:
         """
         if is_open_port(self.port):
             error ("Port "+str(self.port)+" is already used")
-        if not isdir(self.baselogpath):
-            call(["mkdir", "-p", self.baselogpath])
-        else:
-            msg = self.baselogpath + " already exists"
-            warning(msg)
-        if not isdir(self.basepidpath):
-            call(["mkdir", "-p", self.basepidpath])
-        else:
-            msg = self.basepidpath + " already exists"
-            warning(msg)
+        call(self.hostname, self.username, ["mkdir", "-p", self.baselogpath])
+        call(self.hostname, self.username,["mkdir", "-p", self.basepidpath])
         success("mongos is ready to be started")
 
     def start(self):
@@ -267,7 +273,7 @@ class Mongos:
                "--port", str(self.port), 
                "--logpath", self.logpath, 
                "--fork"]
-        output, err, rc = call(cmd)
+        output, err, rc = call(self.hostname, self.username,cmd)
         pid = int(output.split("\n")[1].split()[2])
         f = open (self.pidpath,"w")
         f.write(str(pid))
@@ -283,7 +289,7 @@ class Mongos:
         Stop the mongos process.
         """
         pid = open(self.pidpath).read()
-        output, err, rc = call(["kill", pid])
+        output, err, rc = call(self.hostname, self.username,["kill", pid])
         if rc == 0:
             success("mongos process " + pid + " killed")
         else:
@@ -293,7 +299,7 @@ class Mongos:
         """
         Clean the environment of the mongos process.
         """
-        output, err, rc = call(["rm", "-r", self.baselogpath, self.basepidpath])
+        output, err, rc = call(self.hostname, self.username,["rm", "-r", self.baselogpath, self.basepidpath])
         if rc == 0:
             success("cleaned")
         else:
@@ -305,6 +311,8 @@ class MongoReplicaSet:
     """
     count = 0
     def __init__(self,
+                 hostname="yoann",
+                 username="couillec",
                  type="data",
                  replname="data_set",
                  replica_factor=3):
@@ -316,11 +324,16 @@ class MongoReplicaSet:
         :param replica_factor: The number of node that the replica set
         contains. Must be an odd number.
         """
+        self.hostname = hostname
+        self.username = username
         self.replname = replname + str(self.__class__.count)
         self.replica_factor = replica_factor
         self.mongods = []
         for n in range(0, replica_factor):
-            md = Mongod(ireplname=self.replname,itype=type)
+            md = Mongod(ireplname=self.replname,
+                        itype=type,
+                        ihostname=hostname,
+                        iusername=username)
             self.mongods.append(md)
         self.__class__.count += 1
 
@@ -348,7 +361,7 @@ class MongoReplicaSet:
         """
         primary = self.mongods[0]
         cmd = ["mongo", "--port", str(primary.port), "--eval", "rs.initiate()"]
-        output, err, rc = call(cmd)
+        output, err, rc = call(self.hostname, self.username,cmd)
         json_ret = json.loads(" ".join(output.split("\n")[2:]))
         if json_ret["ok"] == 1:
             success("replica set initiated")
@@ -357,7 +370,7 @@ class MongoReplicaSet:
         for secondary in self.mongods[1:]:
             cmd = ["mongo", "--port", str(primary.port), 
                    "--eval", "rs.add('" + secondary.hostname + ":" + str(secondary.port) + "')"]
-            output, err, rc = call(cmd)
+            output, err, rc = call(self.hostname, self.username,cmd)
             json_ret = json.loads(" ".join(output.split("\n")[2:]))
             if json_ret["ok"] == 1:
                 success("node added to replica set")
@@ -388,6 +401,8 @@ class MongoCluster:
     init, start, stop and clean.
     """
     def __init__(self,
+                 hostname="yoann",
+                 username="couillec",
                  replica_factor=3,
                  scale_factor=2,
                  routers_factor=2):
@@ -399,12 +414,19 @@ class MongoCluster:
         :param scale_factor: The number of replica set (shards).
         :param routers_factor: The number of mongos.
         """
+        self.hostname = hostname
+        self.username = username
         self.replica_factor = replica_factor
         self.scale_factor = scale_factor
-        self.config_replica_set = MongoReplicaSet(type="config",replname="config")
+        self.config_replica_set = MongoReplicaSet(type="config",
+                                                  replname="config",
+                                                  hostname=self.hostname,
+                                                  username=self.username)
         self.data_replica_sets = []
         for n in range(0, scale_factor):
-            ds = MongoReplicaSet(replica_factor=replica_factor)
+            ds = MongoReplicaSet(replica_factor=replica_factor,
+                                 hostname=hostname,
+                                 username=username)
             self.data_replica_sets.append(ds)
         pc = self.config_replica_set.mongods[0]
         configstring = self.config_replica_set.replname + "/" + pc.hostname + ":"+ str(pc.port)
@@ -412,7 +434,9 @@ class MongoCluster:
             configstring += "," + md.hostname + ":" + str(md.port)
         self.mongoss = []
         for n in range(0, routers_factor):
-            ms = Mongos(configstring=configstring)
+            ms = Mongos(configstring=configstring,
+                        hostname=self.hostname,
+                        username=self.username)
             self.mongoss.append(ms)
 
     def initialize(self):
