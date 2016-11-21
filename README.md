@@ -1,4 +1,4 @@
-# MongoManager starts an entire cluster in one line of Python [![Build Status](https://travis-ci.org/afissegalaad/MongoManager.svg?branch=release)](https://travis-ci.org/afissegalaad/MongoManager)
+# MongoManager starts a cluster in one line of Python [![Build Status](https://travis-ci.org/afissegalaad/MongoManager.svg?branch=release)](https://travis-ci.org/afissegalaad/MongoManager)
 
 ## MongoDB
 
@@ -24,7 +24,7 @@ MongoManager is a Python library launching, stopping, managing MongoDB cluster i
 # Prepare data and log directories
 cluster = MongoCluster().initialize()
 
-# Start the whole cluster on all wanted  machines
+# Start the whole cluster on all wanted machines
 cluster.start()
 
 # Stop the cluster
