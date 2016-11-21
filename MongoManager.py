@@ -20,7 +20,6 @@ import socket
 import sys
 import json
 from datetime import datetime
-import paramiko 
 import subprocess
 
 def is_open_port(port):
