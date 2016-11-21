@@ -1,4 +1,4 @@
-# MongoManager starts a cluster in one line of Python [![Build Status](https://travis-ci.org/afissegalaad/MongoManager.svg?branch=release)](https://travis-ci.org/afissegalaad/MongoManager)
+# MongoManager starts a cluster in one line of Python [![Build Status](https://travis-ci.org/yoanncouillec/MongoManager.svg?branch=release)](https://travis-ci.org/yoanncouillec/MongoManager)
 
 MongoDB is a fast and scalable NoSQL database. It supports very high read and write operations. The main concepts are:
 
