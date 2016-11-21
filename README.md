@@ -4,7 +4,7 @@ MongoDB is a fast and scalable NoSQL database. It supports very high read and wr
 
 * **Cluster:** A group of shards that manages scalability and replication.
 * **Shard:** A group of nodes dedicated to a data subset. Each shard manages it's own replication. All shards together provide horizontal scalability to MongoDB.
-* **Chunk:** Defines a range of data based on the key value. Each shard is in charge of a group of chunks. If a chunk grows to big it is split into two chunks, this is called migration.
+* **Chunk:** Defines a range of data based on the key value. Each shard is in charge of a group of chunks. If a chunk grows too big it is split into two chunks, this is called migration.
 * **Primary:** Is the entry node of a shard. It supports all read and write operations. Furthemore, the primary node is the only one that supports write operations in a shard.
 * **Secondary:** Is the node providing replication to the shard (i.e. to MongoDB). It supports only write operation.
 
