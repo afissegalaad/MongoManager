@@ -10,7 +10,7 @@ MongoDB is a fast and scalable NoSQL database. It supports very high read and wr
 * **Primary:** Is the entry node of a shard. It supports all read and write operations. Furthemore, the primary node is the only one that supports write operations in a shard.
 * **Secondary:** Is the node providing replication to the shard (i.e. to MongoDB). It supports only write operation.
 
-# MongoManager
+## MongoManager
 
 MongoManager is a Python library launching, stopping, managing MongoDB cluster in a few lines of code.
 
